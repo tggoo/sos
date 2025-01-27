@@ -1,0 +1,70 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+      "title": "KiotaMultipartBodyTypeScript | v1",
+      "version": "1.0.0"
+    },
+    "servers": [
+      {
+        "url": "http://localhost:5187"
+      }
+    ],
+    "paths": {
+      "/handle-form": {
+        "post": {
+          "tags": [
+            "KiotaMultipartBodyTypeScript"
+          ],
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyForm"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "IFormFile": {
+          "type": "string",
+          "format": "binary"
+        },
+        "MyForm": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "comment": {
+              "type": "string",
+              "nullable": true
+            },
+            "myFile": {
+              "$ref": "#/components/schemas/IFormFile"
+            },
+            "attachments": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/IFormFile"
+              }
+            }
+          }
+        }
+      }
+    },
+    "tags": [
+      {
+        "name": "KiotaMultipartBodyTypeScript"
+      }
+    ]
+  }
