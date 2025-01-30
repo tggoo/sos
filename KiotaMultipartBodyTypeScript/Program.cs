@@ -1,6 +1,6 @@
-using System.Text.RegularExpressions;
-
 using KiotaMultipartBodyTypeScript;
+
+using Microsoft.AspNetCore.Mvc;
 
 using Scalar.AspNetCore;
 
@@ -35,18 +35,18 @@ app.MapGet("/", context =>
     return Task.CompletedTask;
 });
 
-app.MapPost("/handle-form", async (HttpRequest request) =>
-{
-    IFormCollection form = await request.ReadFormAsync();
-
-    MyForm myForm = new()
-    {
-        Name = form["Name"]!,
-        Comment = form["Comment"],
-        MyFile = form.Files["MyFile"]!,
-        Attachments = [.. form.Files.Where(x => Regex.IsMatch(x.Name, @"^Attachments\[\d+\]$", RegexOptions.IgnoreCase))]
-    };
-
+app.MapPost("/handle-form", async ([FromForm] MyForm myForm, HttpRequest request) =>
+{   
+    // IFormCollection form = await request.ReadFormAsync();
+    // MyForm myForm = new()
+    // {
+    //     Name = form["Name"]!,
+    //     Comment = form["Comment"],
+    //     MyFile = form.Files["MyFile"]!,
+    //     Attachments = [.. form.Files.Where(x => Regex.IsMatch(x.Name, @"^Attachments\[\d+\]$", RegexOptions.IgnoreCase))]
+    // };
+    
+    await Task.CompletedTask;
     return Results.Ok(myForm);
 })
 .Accepts<MyForm>("multipart/form-data")
