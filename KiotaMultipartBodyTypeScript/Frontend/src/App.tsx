@@ -21,6 +21,10 @@ function App() {
   
     return buffers;
   };
+
+  const formatMultipartNameWithFilename  = (name: string, fileName: string) => {
+    return `${name}"; filename="${fileName}`;
+  };
   
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -36,12 +40,16 @@ function App() {
       
       multipartBody.addOrReplacePart("Name", "text/plain", name);
       multipartBody.addOrReplacePart("Comment", "text/plain", comment);  
-      multipartBody.addOrReplacePart("MyFile", "application/octet-stream", await myFile.bytes());
-      // multipartBody.addOrReplacePart("MyFile", "application/octet-stream", await myFile.bytes());
+      multipartBody.addOrReplacePart(formatMultipartNameWithFilename("MyFile", myFile.name), myFile.type || "application/octet-stream", await myFile.bytes());
+      // multipartBody.addOrReplacePart(`MyFile\";filename=\"${myFile.name}`, myFile.type || "application/octet-stream", await myFile.arrayBuffer());
       
       const attachmentBuffers = await processFilesToBytes(attachments);
       attachmentBuffers.forEach(file =>
-        multipartBody.addOrReplacePart(`Attachments[${file.index}]`, "application/octet-stream", file.buffer)
+        multipartBody.addOrReplacePart(
+          formatMultipartNameWithFilename(`Attachments[${file.index}]`, attachments[file.index].name),
+            attachments[file.index].type || "application/octet-stream",
+            file.buffer
+        )
       );
   
       await client.handleForm.post(multipartBody); // SOS: Error while sending post: Error: unsupported content type for multipart body: object
