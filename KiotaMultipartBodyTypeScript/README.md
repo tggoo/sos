@@ -262,3 +262,15 @@ const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     }
   };
 ```
+
+## Solution
+
+> [Kiota MultiparBody Serializer](https://github.com/microsoft/kiota-typescript/blob/eb2414da1251ca627059ee40169e9fd20368cd9f/packages/abstractions/src/multipartBody.ts#L132)
+
+```typescript
+- multipartBody.addOrReplacePart("MyFile", "application/octet-stream", myFile);
++ multipartBody.addOrReplacePart("MyFile", "application/octet-stream", await myFile.bytes());
+
+// or
++ multipartBody.addOrReplacePart("MyFile", "application/octet-stream", await myFile.arrayBuffer());
+```

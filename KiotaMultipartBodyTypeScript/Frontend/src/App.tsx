@@ -13,11 +13,19 @@ const client = createApiClient(adapter);
 
 function App() {
 
+
+  const processFilesToBytes = async (files:File[]) => {
+    const buffers = await Promise.all(files.map(async (file, index) => {
+      return { index, buffer: await file.bytes() };
+    }));
+  
+    return buffers;
+  };
+  
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
     const formData = new FormData(e.currentTarget);
-  
-    // get form fields
     const name = formData.get("name")?.toString() || "";
     const comment = formData.get("comment")?.toString() || "";
     const myFile = formData.get("myFile") as File;
@@ -26,12 +34,15 @@ function App() {
     try {
       const multipartBody = new MultipartBody();
       
-      multipartBody.addOrReplacePart("Name", "application/x-www-form-urlencoded", name);
-      multipartBody.addOrReplacePart("Comment", "application/x-www-form-urlencoded", comment);      
-      multipartBody.addOrReplacePart("MyFile", "application/octet-stream", myFile);
-      attachments.forEach((file, index) => {
-        multipartBody.addOrReplacePart(`Attachments[${index}]`, "application/octet-stream", file);
-      });
+      multipartBody.addOrReplacePart("Name", "text/plain", name);
+      multipartBody.addOrReplacePart("Comment", "text/plain", comment);  
+      multipartBody.addOrReplacePart("MyFile", "application/octet-stream", await myFile.bytes());
+      // multipartBody.addOrReplacePart("MyFile", "application/octet-stream", await myFile.bytes());
+      
+      const attachmentBuffers = await processFilesToBytes(attachments);
+      attachmentBuffers.forEach(file =>
+        multipartBody.addOrReplacePart(`Attachments[${file.index}]`, "application/octet-stream", file.buffer)
+      );
   
       await client.handleForm.post(multipartBody); // SOS: Error while sending post: Error: unsupported content type for multipart body: object
     } catch (err) {
